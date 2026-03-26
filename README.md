@@ -11,6 +11,7 @@
 Journal OS is a local desktop app for writing and reviewing daily journal entries. At the end of each week, a single button runs an AI agent that reads your last 7 days of writing and produces a structured summary covering your highlights, what you learned, and patterns in your thinking. That summary can be exported as a formatted PDF.
 
 No cloud sync. No accounts. Everything lives in a local PostgreSQL database on your machine.
+![](1.png)
 
 ---
 
