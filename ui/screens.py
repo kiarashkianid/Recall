@@ -17,10 +17,8 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 
-import db
-import ai_summary
-import pdf_export
-from config import BG, FG, FG_DIM, FG_AMBER, FG_ERR, BORDER, F_HEADING, F_SMALL
+from journal_os import ai_summary, db, pdf_export
+from journal_os.config import BG, FG, FG_DIM, FG_AMBER, BORDER, F_HEADING, F_SMALL
 from ui.widgets import (
     make_button, make_label, make_entry,
     make_text, make_scrolltext,

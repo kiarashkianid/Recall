@@ -11,7 +11,7 @@ Nothing about journal data or screens lives here.
 
 import tkinter as tk
 from datetime import datetime
-from config import BG, BORDER, FG, FG_DIM, FG_ERR, F_TITLE, F_SMALL
+from journal_os.config import BG, FG, FG_DIM, FG_ERR, F_TITLE, F_SMALL
 from ui.widgets import make_separator
 
 

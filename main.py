@@ -10,8 +10,8 @@ bootstraps the database schema, and starts the Tk event loop.
 import tkinter as tk
 from tkinter import messagebox
 
-import db
-from config import BG, WIN_W, WIN_H
+from journal_os import db
+from journal_os.config import BG, WIN_W, WIN_H
 from ui.chrome  import AppChrome
 from ui.screens import Screens
 

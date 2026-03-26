@@ -7,7 +7,7 @@ Every function returns the widget without packing it — callers decide layout.
 
 import tkinter as tk
 from tkinter import scrolledtext
-from config import (
+from journal_os.config import (
     BG, BG_INPUT, BG_HOVER,
     FG, FG_DIM, FG_MID, FG_AMBER, BORDER,
     F_HEADING, F_BODY, F_LABEL,

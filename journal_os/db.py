@@ -7,7 +7,7 @@ No UI or business logic lives here.
 
 import psycopg2
 from datetime import datetime, timedelta
-from config import DB_CONFIG
+from journal_os.config import DB_CONFIG
 
 
 # ──────────────────────────────────────────────
