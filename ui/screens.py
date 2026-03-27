@@ -17,8 +17,11 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 
-from journal_os import ai_summary, db, pdf_export
-from journal_os.config import BG, FG, FG_DIM, FG_AMBER, BORDER, F_HEADING, F_SMALL
+import db
+import vector_store
+import ai_summary
+import pdf_export
+from config import BG, FG, FG_DIM, FG_AMBER, FG_ERR, BORDER, F_HEADING, F_SMALL
 from ui.widgets import (
     make_button, make_label, make_entry,
     make_text, make_scrolltext,
@@ -27,8 +30,8 @@ from ui.widgets import (
 
 class Screens:
     """
-    Mixin providing all screen methods.
-    Navigation is done by calling self._show_*(). Each screen starts
+    Mixin providing all four screen methods.
+    Navigation is done by calling self.show_*(). Each screen starts
     with self._clear() to wipe the previous screen's widgets.
     """
 
@@ -55,8 +58,17 @@ class Screens:
         for text, cmd, accent in menu:
             make_button(self.content, text, cmd, width=34, accent=accent).pack(pady=4)
 
-        tk.Frame(self.content, bg=BG, height=30).pack()
-        make_label(self.content, "JOURNAL OS  ·  powered by CrewAI",
+        tk.Frame(self.content, bg=BG, height=24).pack()
+
+        # Show vector store status
+        try:
+            n = vector_store.collection_size()
+            vec_msg = f"vector store  ·  {n} embeddings indexed"
+        except Exception:
+            vec_msg = "vector store  ·  unavailable"
+
+        make_label(self.content, vec_msg, font=F_SMALL, fg=FG_DIM).pack()
+        make_label(self.content, "JOURNAL OS  ·  RAG-Agentic  ·  powered by CrewAI",
                    font=F_SMALL, fg=FG_DIM).pack()
 
     # ──────────────────────────────────────────────
@@ -114,11 +126,17 @@ class Screens:
                 return
 
             try:
-                db.insert_entry(title, content, date)
-                self._status("ENTRY SAVED  ✓")
+                # Save to PostgreSQL and get the new row's id
+                new_id = db.insert_entry_returning_id(title, content, date)
+
+                # Immediately embed into ChromaDB
+                self._status("Saving & embedding entry...")
+                vector_store.upsert_entry(new_id, title, content, date)
+
+                self._status(f"ENTRY SAVED + EMBEDDED  ✓  (id={new_id})")
                 self.show_home()
             except Exception as ex:
-                self._status(f"DB ERROR: {ex}", err=True)
+                self._status(f"ERROR: {ex}", err=True)
 
         make_button(btn_row, "[ SAVE ENTRY ]", _save,           width=16).pack(side="left", padx=(0, 10))
         make_button(btn_row, "[ ← BACK ]",     self.show_home,  width=12).pack(side="left")
@@ -162,28 +180,48 @@ class Screens:
         make_button(self.content, "[ ← BACK ]", self.show_home, width=12).pack(anchor="w")
 
     # ──────────────────────────────────────────────
-    #  SUMMARY — screen setup
+    #  SUMMARY + RAG Q&A — screen setup
     # ──────────────────────────────────────────────
 
     def show_summary(self) -> None:
         self._clear()
-        self._mode("AI SUMMARY")
-        self._status("Press GENERATE to analyse last 7 days")
+        self._mode("AI SUMMARY + RAG Q&A")
+        self._status("GENERATE runs agentic summary  ·  ASK queries your full journal")
 
-        # Persistent state for this screen
         self._summary_text: str = ""
 
-        make_label(self.content, "// WEEKLY AI SUMMARY",
-                   font=F_HEADING, fg=FG).pack(anchor="w", pady=(0, 10))
+        # ── Section header ──
+        make_label(self.content, "// WEEKLY AI SUMMARY  +  ASK YOUR JOURNAL",
+                   font=F_HEADING, fg=FG).pack(anchor="w", pady=(0, 8))
 
-        self._sum_out = make_scrolltext(self.content, height=17)
-        self._sum_out.pack(fill="both", expand=True, pady=(0, 10))
+        # ── Output area ──
+        self._sum_out = make_scrolltext(self.content, height=14)
+        self._sum_out.pack(fill="both", expand=True, pady=(0, 8))
         self._sum_out.insert("end",
-            "\n  ░  Awaiting analysis...\n\n"
-            "  Press  [ GENERATE SUMMARY ]  to run the AI.\n"
+            "\n  ░  RAG-Agentic mode active.\n\n"
+            "  ▸  [ GENERATE SUMMARY ]  runs 3 targeted semantic searches\n"
+            "     then synthesises: Highlights / Learnings / Patterns.\n\n"
+            "  ▸  [ ASK ]  lets you query your entire journal history\n"
+            "     with a freeform question.\n"
         )
         self._sum_out.config(state="disabled")
 
+        # ── Q&A input row ──
+        qa_row = tk.Frame(self.content, bg=BG)
+        qa_row.pack(fill="x", pady=(0, 6))
+
+        make_label(qa_row, "ASK:", fg=FG_DIM).pack(side="left", padx=(0, 8))
+        self._qa_entry = make_entry(qa_row, width=52)
+        self._qa_entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
+        self._qa_entry.bind("<Return>", lambda _: self._launch_qa())
+
+        self._ask_btn = make_button(
+            qa_row, "[ ASK ]",
+            self._launch_qa, width=10,
+        )
+        self._ask_btn.pack(side="left")
+
+        # ── Action buttons ──
         btn_row = tk.Frame(self.content, bg=BG)
         btn_row.pack(fill="x")
 
@@ -211,54 +249,92 @@ class Screens:
 
     def _launch_summary(self) -> None:
         self._run_btn.config(state="disabled", text="[ PROCESSING... ]", fg=FG_DIM)
-        self._status("Running AI analysis  ·  please wait...")
+        self._ask_btn.config(state="disabled")
+        self._status("RAG agent running  ·  issuing semantic queries...")
         self._summary_text = ""
 
         self._sum_out.config(state="normal")
         self._sum_out.delete("1.0", "end")
         self._sum_out.insert("end",
-            "\n  ░░░  Fetching journal entries...\n"
-            "  ░░░  Initialising AI agent...\n"
-            "  ░░░  Analysing patterns...\n\n"
+            "\n  ░░░  Agent issuing semantic search queries...\n"
+            "  ░░░  Retrieving relevant journal chunks...\n"
+            "  ░░░  Synthesising report...\n\n"
             "  This may take 30–60 seconds.\n"
         )
         self._sum_out.config(state="disabled")
 
-        threading.Thread(target=self._run_ai, daemon=True).start()
+        threading.Thread(target=self._run_summary_ai, daemon=True).start()
 
-    def _run_ai(self) -> None:
-        """Runs on a background thread — no direct UI calls here."""
+    def _run_summary_ai(self) -> None:
         try:
-            journal_text = db.fetch_last_week_entries()
-            if not journal_text:
-                self._push_summary(
-                    "  No journal entries found in the last 7 days.\n"
-                    "  Add some entries first, then run the summary."
-                )
-                return
-            result = ai_summary.generate_summary(journal_text)
+            result = ai_summary.generate_summary()
             self._summary_text = result
-            self._push_summary(result)
+            self._push_output(result, is_summary=True)
         except Exception as ex:
-            self._push_summary(f"  ERROR: {ex}")
+            self._push_output(f"  ERROR: {ex}", is_summary=False)
             self.root.after(0, lambda: self._status(f"Error: {ex}", err=True))
 
-    def _push_summary(self, text: str) -> None:
-        """Thread-safe: schedule UI update back on the main thread."""
+    # ──────────────────────────────────────────────
+    #  Q&A — thread lifecycle
+    # ──────────────────────────────────────────────
+
+    def _launch_qa(self) -> None:
+        question = self._qa_entry.get().strip()
+        if not question:
+            self._status("ERROR: Type a question first", err=True)
+            return
+
+        self._ask_btn.config(state="disabled", text="[ ... ]", fg=FG_DIM)
+        self._run_btn.config(state="disabled")
+        self._status(f"Searching journal for: {question[:50]}...")
+
+        self._sum_out.config(state="normal")
+        self._sum_out.delete("1.0", "end")
+        self._sum_out.insert("end",
+            f"\n  ░░░  Question: {question}\n\n"
+            "  ░░░  Retrieving relevant entries...\n"
+            "  ░░░  Composing answer...\n"
+        )
+        self._sum_out.config(state="disabled")
+
+        threading.Thread(
+            target=self._run_qa_ai,
+            args=(question,),
+            daemon=True,
+        ).start()
+
+    def _run_qa_ai(self, question: str) -> None:
+        try:
+            answer = ai_summary.answer_question(question)
+            output = f"Q: {question}\n\n{'─'*60}\n\n{answer}"
+            self._push_output(output, is_summary=False)
+        except Exception as ex:
+            self._push_output(f"  ERROR: {ex}", is_summary=False)
+            self.root.after(0, lambda: self._status(f"Error: {ex}", err=True))
+
+    # ──────────────────────────────────────────────
+    #  SHARED OUTPUT UPDATER (thread-safe)
+    # ──────────────────────────────────────────────
+
+    def _push_output(self, text: str, is_summary: bool) -> None:
+        """Schedule a UI update back on the main Tk thread."""
         def _update():
             self._sum_out.config(state="normal")
             self._sum_out.delete("1.0", "end")
             self._sum_out.insert("end", "\n" + text + "\n")
             self._sum_out.config(state="disabled")
 
-            self._run_btn.config(state="normal", text="[ REGENERATE ]", fg=FG)
+            # Re-enable buttons
+            self._run_btn.config(state="normal", text="[ GENERATE SUMMARY ]", fg=FG)
+            self._ask_btn.config(state="normal",  text="[ ASK ]",             fg=FG)
 
-            if self._summary_text and not self._summary_text.startswith("  ERROR"):
+            # Enable PDF export only after a successful summary
+            if is_summary and self._summary_text and "ERROR" not in text[:20]:
                 self._export_btn.config(
                     state="normal", fg=FG_AMBER,
                     highlightbackground=BORDER,
                 )
-            self._status("Analysis complete  ✓")
+            self._status("Done  ✓")
 
         self.root.after(0, _update)
 

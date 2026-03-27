@@ -10,12 +10,18 @@ import os
 # ──────────────────────────────────────────────
 #  API
 # ──────────────────────────────────────────────
-os.environ["OPENAI_API_KEY"] = (
-    "my last brain cell"
+OPENAI_API_KEY = (
+    "sk-proj-C5l9FgbkVKnvo10NKCJS7z14E6aKyH3PHc9opHLrzumgzorO6ls_aIGy-"
+    "glU2nKlHNQ3muD49wT3BlbkFJhqv4pByMXkGjG60nCDFOg1X1W8BiIYBu0vMvWrQO0_"
+    "R2FMaChdY0HVyxK712vcs1efhUHChjYA"
 )
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+
+OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
+OPENAI_LLM_MODEL       = "gpt-4o"
 
 # ──────────────────────────────────────────────
-#  DATABASE
+#  DATABASE  (PostgreSQL — structured storage)
 # ──────────────────────────────────────────────
 DB_CONFIG: dict = {
     "dbname":   "journal_db",
@@ -24,6 +30,13 @@ DB_CONFIG: dict = {
     "host":     "localhost",
     "port":     "5432",
 }
+
+# ──────────────────────────────────────────────
+#  VECTOR STORE  (ChromaDB — semantic retrieval)
+# ──────────────────────────────────────────────
+CHROMA_PATH       = "./chroma_db"          # persisted on disk next to the project
+CHROMA_COLLECTION = "journal_entries"
+RAG_TOP_K         = 6                      # results returned per semantic query
 
 # ──────────────────────────────────────────────
 #  WINDOW

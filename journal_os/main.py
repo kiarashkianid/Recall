@@ -3,15 +3,18 @@ main.py
 ───────
 Entry point for Journal OS.
 
-Composes AppChrome + Screens into JournalApp,
-bootstraps the database schema, and starts the Tk event loop.
+Startup sequence:
+  1. Setup PostgreSQL schema (idempotent).
+  2. Sync all existing entries into ChromaDB (idempotent upsert).
+  3. Build the Tkinter window and launch the event loop.
 """
 
 import tkinter as tk
 from tkinter import messagebox
 
-from journal_os import db
-from journal_os.config import BG, WIN_W, WIN_H
+import db
+import vector_store
+from config import BG, WIN_W, WIN_H
 from ui.chrome  import AppChrome
 from ui.screens import Screens
 
@@ -30,15 +33,32 @@ class JournalApp(AppChrome, Screens):
         self.root.resizable(False, False)
 
         self._init_db()
-        self.build_chrome()   # AppChrome: header + content area + status bar
-        self.show_home()      # Screens: render the home menu
+        self._sync_vectors()
+        self.build_chrome()   # AppChrome → header + content area + status bar
+        self.show_home()      # Screens   → render the home menu
 
     def _init_db(self) -> None:
         try:
             db.setup_schema()
         except Exception as ex:
-            messagebox.showerror("Database Error",
-                                 f"Cannot connect to PostgreSQL:\n\n{ex}")
+            messagebox.showerror(
+                "Database Error",
+                f"Cannot connect to PostgreSQL:\n\n{ex}"
+            )
+
+    def _sync_vectors(self) -> None:
+        """
+        Upsert all existing PostgreSQL entries into ChromaDB.
+        Safe to call every startup — upsert is idempotent.
+        Runs synchronously before the window opens (usually < 1 s).
+        """
+        try:
+            entries = db.fetch_all_entries_with_ids()
+            if entries:
+                vector_store.sync_from_postgres(entries)
+        except Exception as ex:
+            # Non-fatal: the app still works, RAG features will warn separately
+            print(f"[vector sync] warning: {ex}")
 
 
 # ──────────────────────────────────────────────
