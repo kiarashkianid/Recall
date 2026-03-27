@@ -11,9 +11,7 @@ import os
 #  API
 # ──────────────────────────────────────────────
 OPENAI_API_KEY = (
-    "sk-proj-C5l9FgbkVKnvo10NKCJS7z14E6aKyH3PHc9opHLrzumgzorO6ls_aIGy-"
-    "glU2nKlHNQ3muD49wT3BlbkFJhqv4pByMXkGjG60nCDFOg1X1W8BiIYBu0vMvWrQO0_"
-    "R2FMaChdY0HVyxK712vcs1efhUHChjYA"
+    "my last brain cell"
 )
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
