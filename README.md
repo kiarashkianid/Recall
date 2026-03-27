@@ -4,7 +4,7 @@
 > AI-powered weekly analysis, freeform journal Q&A, and PDF export.
 
 ---
-
+[1.png]
 ## What It Does
 
 Journal OS is a local desktop app for writing and reviewing daily journal
@@ -12,25 +12,6 @@ entries. Every entry you save is automatically embedded into a local vector
 database (ChromaDB). At the end of each week, an AI agent semantically
 searches your writing and produces a structured summary. You can also ask
 your journal any freeform question and get a grounded, cited answer.
-
-No cloud sync. No accounts. All data stays on your machine.
-
----
-
-## What Makes It RAG-Agentic
-
-| Concept | Implementation |
-|---|---|
-| **Retrieval** | ChromaDB stores OpenAI embeddings for every entry. Queries use cosine similarity, not keyword matching. |
-| **Augmentation** | The agent retrieves only the *relevant* chunks for each sub-question — not a raw dump of all text. |
-| **Generation** | CrewAI + GPT-4o synthesises findings exclusively from retrieved context. |
-| **Agentic** | The agent decides *what* to search for. It issues multiple targeted tool calls (`search_journal`) before writing anything. |
-
-Contrast with the naive approach: passing all entries as a single text blob
-to the LLM. That breaks on large journals and gives the model no ability to
-focus. Here, the agent is in control of its own context window.
-
----
 
 ## Tech Stack
 
@@ -168,11 +149,3 @@ with the agent free to re-query with rephrased terms if the first results
 are insufficient.
 
 ---
-
-## Design Notes
-
-The UI uses a phosphor-green-on-black terminal aesthetic:
-`Courier New` throughout, `#39FF14` neon green on `#080808` near-black,
-box-drawing characters (`┌─┐`) for entry borders, live clock in the header.
-No third-party UI framework — pure Tkinter with focus-glow border effects
-implemented via `highlightbackground` bindings.
