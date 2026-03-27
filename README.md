@@ -1,6 +1,4 @@
 # Recall
-demo : https://www.youtube.com/watch?v=moRR7oqqqiM
-
 > A minimalist retro-terminal personal journal with AI-powered weekly analysis and PDF export.
 
 ---
