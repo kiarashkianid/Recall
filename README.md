@@ -4,8 +4,6 @@
 > AI-powered weekly analysis, freeform journal Q&A, and PDF export.
 
 ---
-![](1.png)
-
 ## What It Does
 
 Journal OS is a local desktop app for writing and reviewing daily journal
