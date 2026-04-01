@@ -2,45 +2,60 @@
 config.py
 ─────────
 Single source of truth for every constant in Journal OS.
-Edit DB credentials, API key, and theme values here.
+
+Credentials are loaded from a .env file (via python-dotenv) so they
+never need to live in source code. Copy .env.example → .env and fill
+in your values. Hard-coded fallbacks are provided for non-sensitive
+defaults only.
+
+Install:  pip install python-dotenv
 """
 
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from the project root (the directory containing this file)
+load_dotenv(Path(__file__).parent / ".env")
+
 
 # ──────────────────────────────────────────────
 #  API
 # ──────────────────────────────────────────────
-OPENAI_API_KEY = (
-    "my last brain cell"
-)
+OPENAI_API_KEY         = os.getenv("OPENAI_API_KEY", "")
+OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+OPENAI_LLM_MODEL       = os.getenv("OPENAI_LLM_MODEL", "gpt-4o")
+
+# Make available to libraries that read the env var directly
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
-OPENAI_LLM_MODEL       = "gpt-4o"
 
 # ──────────────────────────────────────────────
 #  DATABASE  (PostgreSQL — structured storage)
 # ──────────────────────────────────────────────
 DB_CONFIG: dict = {
-    "dbname":   "journal_db",
-    "user":     "postgres",
-    "password": "1382",
-    "host":     "localhost",
-    "port":     "5432",
+    "dbname":   os.getenv("DB_NAME",     "journal_db"),
+    "user":     os.getenv("DB_USER",     "postgres"),
+    "password": os.getenv("DB_PASSWORD", ""),
+    "host":     os.getenv("DB_HOST",     "localhost"),
+    "port":     os.getenv("DB_PORT",     "5432"),
 }
+
 
 # ──────────────────────────────────────────────
 #  VECTOR STORE  (ChromaDB — semantic retrieval)
 # ──────────────────────────────────────────────
-CHROMA_PATH       = "./chroma_db"          # persisted on disk next to the project
-CHROMA_COLLECTION = "journal_entries"
-RAG_TOP_K         = 6                      # results returned per semantic query
+CHROMA_PATH       = os.getenv("CHROMA_PATH",  "./chroma_db")
+CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "journal_entries")
+RAG_TOP_K         = int(os.getenv("RAG_TOP_K", "6"))
+
 
 # ──────────────────────────────────────────────
 #  WINDOW
 # ──────────────────────────────────────────────
-WIN_W = 780
-WIN_H = 580
+WIN_W = 820
+WIN_H = 620
+
 
 # ──────────────────────────────────────────────
 #  COLOUR PALETTE  (phosphor-green terminal)
@@ -56,6 +71,7 @@ FG_ERR   = "#FF4040"   # red — error state
 FG_AMBER = "#FFB000"   # amber — accent / export button
 
 BORDER   = "#1A5C0A"   # default border colour
+
 
 # ──────────────────────────────────────────────
 #  TYPOGRAPHY
