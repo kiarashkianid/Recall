@@ -1,4 +1,4 @@
-# ◈ Journal OS  —  RAG-Agentic Edition
+# Recall AI 
 
 > A minimalist retro-terminal personal journal with semantic search,
 > AI-powered weekly analysis, freeform journal Q&A, and PDF export.
