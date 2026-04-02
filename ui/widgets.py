@@ -13,6 +13,10 @@ from config import (
     F_HEADING, F_BODY, F_LABEL,
 )
 
+# Selection colours derived from the warm palette
+_SEL_BG  = "#D6CCBF"   # warm stone — selected text background
+_SEL_FG  = "#2C2825"   # warm charcoal — selected text foreground
+
 
 def make_button(
     parent: tk.Widget,
@@ -22,14 +26,14 @@ def make_button(
     accent: bool = False,
 ) -> tk.Button:
     """
-    Retro-styled flat button with hover glow.
+    Retro-styled flat button with subtle hover lift.
 
     Args:
         parent:  Tkinter parent widget.
         text:    Button label.
         command: Callback on click.
         width:   Character width.
-        accent:  If True, use amber colour instead of green.
+        accent:  If True, use amber colour instead of charcoal.
     """
     fg_col = FG_AMBER if accent else FG
 
@@ -46,7 +50,7 @@ def make_button(
         width=width, pady=9,
         highlightthickness=1,
         highlightbackground=BORDER,
-        highlightcolor=FG,
+        highlightcolor=FG_MID,
     )
     btn.bind("<Enter>", lambda _: btn.config(bg=BG_HOVER, highlightbackground=FG_MID))
     btn.bind("<Leave>", lambda _: btn.config(bg=BG,       highlightbackground=BORDER))
@@ -82,7 +86,9 @@ def make_entry(parent: tk.Widget, width: int = 58) -> tk.Entry:
         relief="flat",
         highlightthickness=1,
         highlightbackground=BORDER,
-        highlightcolor=FG,
+        highlightcolor=FG_MID,
+        selectbackground=_SEL_BG,
+        selectforeground=_SEL_FG,
     )
     entry.bind("<FocusIn>",  lambda _: entry.config(highlightbackground=FG_MID))
     entry.bind("<FocusOut>", lambda _: entry.config(highlightbackground=BORDER))
@@ -99,12 +105,12 @@ def make_text(parent: tk.Widget, height: int = 9) -> tk.Text:
         relief="flat",
         highlightthickness=1,
         highlightbackground=BORDER,
-        highlightcolor=FG,
+        highlightcolor=FG_MID,
         height=height,
         wrap="word",
         padx=10, pady=8,
-        selectbackground="#003300",
-        selectforeground=FG,
+        selectbackground=_SEL_BG,
+        selectforeground=_SEL_FG,
     )
     text.bind("<FocusIn>",  lambda _: text.config(highlightbackground=FG_MID))
     text.bind("<FocusOut>", lambda _: text.config(highlightbackground=BORDER))
@@ -124,8 +130,8 @@ def make_scrolltext(parent: tk.Widget, height: int = 18) -> scrolledtext.Scrolle
         height=height,
         wrap="word",
         padx=10, pady=8,
-        selectbackground="#003300",
-        selectforeground=FG,
+        selectbackground=_SEL_BG,
+        selectforeground=_SEL_FG,
     )
     st.vbar.config(
         bg=BG,

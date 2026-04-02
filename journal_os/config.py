@@ -58,19 +58,19 @@ WIN_H = 620
 
 
 # ──────────────────────────────────────────────
-#  COLOUR PALETTE  (phosphor-green terminal)
+#  COLOUR PALETTE  (warm parchment & ink)
 # ──────────────────────────────────────────────
-BG       = "#080808"   # near-black background
-BG_INPUT = "#0F0F0F"   # slightly lighter input bg
-BG_HOVER = "#0A1A0A"   # button hover bg
+BG       = "#F5F1EB"   # warm cream — main background
+BG_INPUT = "#EDE8DF"   # slightly deeper cream — inputs
+BG_HOVER = "#E4DDD1"   # muted sand — button hover
 
-FG       = "#39FF14"   # phosphor green — primary text
-FG_DIM   = "#1C6E0A"   # muted green — labels / status
-FG_MID   = "#27B006"   # mid green — focus borders
-FG_ERR   = "#FF4040"   # red — error state
-FG_AMBER = "#FFB000"   # amber — accent / export button
+FG       = "#2C2825"   # warm charcoal — primary text
+FG_DIM   = "#8A7F73"   # warm grey-brown — labels / status
+FG_MID   = "#5C7A64"   # muted sage — focus borders / accents
+FG_ERR   = "#A33B2A"   # terracotta — error state
+FG_AMBER = "#8A6020"   # warm honey — accent / export button
 
-BORDER   = "#1A5C0A"   # default border colour
+BORDER   = "#C8BFB2"   # warm stone — default border
 
 
 # ──────────────────────────────────────────────

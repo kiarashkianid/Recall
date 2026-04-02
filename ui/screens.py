@@ -276,7 +276,7 @@ class Screens:
             lb_inner,
             font=F_BODY, width=30, height=14,
             bg=BG_INPUT, fg=FG,
-            selectbackground="#003300", selectforeground=FG,
+            selectbackground="#D6CCBF", selectforeground=FG,
             activestyle="none",
             relief="flat", bd=0,
             highlightthickness=0,
@@ -305,11 +305,11 @@ class Screens:
 
         self._edit_btn = make_button(btn_row, "[ EDIT ]",   self._edit_selected, width=12)
         self._edit_btn.pack(side="left", padx=(0, 8))
-        self._edit_btn.config(state="disabled", fg=FG_DIM, highlightbackground="#001A00")
+        self._edit_btn.config(state="disabled", fg=FG_DIM, highlightbackground=BORDER)
 
         self._del_btn = make_button(btn_row, "[ DELETE ]", self._delete_selected, width=12)
         self._del_btn.pack(side="left", padx=(0, 8))
-        self._del_btn.config(state="disabled", fg=FG_ERR, highlightbackground="#1A0000")
+        self._del_btn.config(state="disabled", fg=FG_ERR, highlightbackground=BORDER)
 
         make_button(btn_row, "[ ← BACK ]", self.show_home, width=12).pack(side="left")
 
@@ -485,7 +485,7 @@ class Screens:
             btn_row, "[ EXPORT PDF ]", self._do_export_pdf, width=15, accent=True,
         )
         self._export_btn.pack(side="left", padx=(0, 8))
-        self._export_btn.config(state="disabled", fg=FG_DIM, highlightbackground="#1A1A00")
+        self._export_btn.config(state="disabled", fg=FG_DIM, highlightbackground=BORDER)
 
         make_button(btn_row, "[ ← BACK ]", self.show_home, width=10).pack(side="left")
 
@@ -636,7 +636,7 @@ class Screens:
             "\n  ░  History cleared.\n\n"
             "  Generate a new summary or ask a question.\n"
         )
-        self._export_btn.config(state="disabled", fg=FG_DIM, highlightbackground="#1A1A00")
+        self._export_btn.config(state="disabled", fg=FG_DIM, highlightbackground=BORDER)
         self._status("History cleared")
 
     # ───────────────────────────────────────────
