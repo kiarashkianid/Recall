@@ -1,5 +1,5 @@
 # Recall AI 
-
+## Demo :  https://www.youtube.com/watch?v=moRR7oqqqiM
 > A minimalist retro-terminal personal journal with semantic search,
 > AI-powered weekly analysis, freeform journal Q&A, and PDF export.
 
