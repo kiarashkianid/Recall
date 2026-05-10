@@ -7,7 +7,7 @@ Every function returns the widget without packing it — callers decide layout.
 
 import tkinter as tk
 from tkinter import scrolledtext
-from config import (
+from journal_os.config import (
     BG, BG_INPUT, BG_HOVER,
     FG, FG_DIM, FG_MID, FG_AMBER, BORDER,
     F_HEADING, F_BODY, F_LABEL,
@@ -22,7 +22,7 @@ def make_button(
     accent: bool = False,
 ) -> tk.Button:
     """
-    Retro-styled flat button with hover glow.
+    Warm, calm button with a soft border and clear hover state.
 
     Args:
         parent:  Tkinter parent widget.
@@ -31,25 +31,28 @@ def make_button(
         width:   Character width.
         accent:  If True, use amber colour instead of green.
     """
-    fg_col = FG_AMBER if accent else FG
+    bg_col = FG_AMBER if accent else BG_INPUT
+    fg_col = "#FFFFFF" if accent else FG
+    hover_bg = "#C95512" if accent else BG_HOVER
 
     btn = tk.Button(
         parent,
         text=text,
         command=command,
         font=F_HEADING,
-        bg=BG, fg=fg_col,
-        activebackground=BG_HOVER,
+        bg=bg_col, fg=fg_col,
+        activebackground=hover_bg,
         activeforeground=fg_col,
+        disabledforeground="#C4A997",
         relief="flat", bd=0,
         cursor="hand2",
-        width=width, pady=9,
+        width=width, pady=10,
         highlightthickness=1,
         highlightbackground=BORDER,
-        highlightcolor=FG,
+        highlightcolor=FG_MID,
     )
-    btn.bind("<Enter>", lambda _: btn.config(bg=BG_HOVER, highlightbackground=FG_MID))
-    btn.bind("<Leave>", lambda _: btn.config(bg=BG,       highlightbackground=BORDER))
+    btn.bind("<Enter>", lambda _: btn.config(bg=hover_bg, highlightbackground=FG_MID))
+    btn.bind("<Leave>", lambda _: btn.config(bg=bg_col, highlightbackground=BORDER))
     return btn
 
 
@@ -72,13 +75,13 @@ def make_label(
 
 
 def make_entry(parent: tk.Widget, width: int = 58) -> tk.Entry:
-    """Single-line text entry with focus-glow border."""
+    """Single-line text entry with a soft focus border."""
     entry = tk.Entry(
         parent,
         font=F_BODY,
         width=width,
         bg=BG_INPUT, fg=FG,
-        insertbackground=FG,
+        insertbackground=FG_AMBER,
         relief="flat",
         highlightthickness=1,
         highlightbackground=BORDER,
@@ -90,20 +93,20 @@ def make_entry(parent: tk.Widget, width: int = 58) -> tk.Entry:
 
 
 def make_text(parent: tk.Widget, height: int = 9) -> tk.Text:
-    """Multi-line text box with focus-glow border."""
+    """Multi-line text box with a soft focus border."""
     text = tk.Text(
         parent,
         font=F_BODY,
         bg=BG_INPUT, fg=FG,
-        insertbackground=FG,
+        insertbackground=FG_AMBER,
         relief="flat",
         highlightthickness=1,
         highlightbackground=BORDER,
         highlightcolor=FG,
         height=height,
         wrap="word",
-        padx=10, pady=8,
-        selectbackground="#003300",
+        padx=12, pady=10,
+        selectbackground="#FFE1C3",
         selectforeground=FG,
     )
     text.bind("<FocusIn>",  lambda _: text.config(highlightbackground=FG_MID))
@@ -117,20 +120,20 @@ def make_scrolltext(parent: tk.Widget, height: int = 18) -> scrolledtext.Scrolle
         parent,
         font=F_BODY,
         bg=BG_INPUT, fg=FG,
-        insertbackground=FG,
+        insertbackground=FG_AMBER,
         relief="flat",
         highlightthickness=1,
         highlightbackground=BORDER,
         height=height,
         wrap="word",
-        padx=10, pady=8,
-        selectbackground="#003300",
+        padx=12, pady=10,
+        selectbackground="#FFE1C3",
         selectforeground=FG,
     )
     st.vbar.config(
-        bg=BG,
+        bg=BG_INPUT,
         troughcolor=BG_INPUT,
-        activebackground=FG_DIM,
+        activebackground=FG_MID,
         width=8,
     )
     return st

@@ -12,9 +12,9 @@ Startup sequence:
 import tkinter as tk
 from tkinter import messagebox
 
-import db
-import vector_store
-from config import BG, WIN_W, WIN_H
+from . import db
+from . import vector_store
+from .config import BG, WIN_W, WIN_H
 from ui.chrome  import AppChrome
 from ui.screens import Screens
 
@@ -28,7 +28,7 @@ class JournalApp(AppChrome, Screens):
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("JOURNAL OS")
+        self.root.title("Recall Journal")
         self.root.configure(bg=BG)
         self.root.resizable(False, False)
 

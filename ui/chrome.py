@@ -11,7 +11,7 @@ Nothing about journal data or screens lives here.
 
 import tkinter as tk
 from datetime import datetime
-from config import BG, BORDER, FG, FG_DIM, FG_ERR, F_TITLE, F_SMALL
+from journal_os.config import BG, BORDER, FG, FG_DIM, FG_ERR, F_TITLE, F_SMALL
 from ui.widgets import make_separator
 
 
@@ -42,37 +42,41 @@ class AppChrome:
         hdr.pack(fill="x")
 
         left = tk.Frame(hdr, bg=BG)
-        left.pack(side="left", padx=20, pady=14)
-        tk.Label(left, text="◈ JOURNAL OS", font=F_TITLE, bg=BG, fg=FG).pack(side="left")
-        tk.Label(left, text=" v1.0",        font=F_SMALL, bg=BG, fg=FG_DIM).pack(
-            side="left", pady=(8, 0)
-        )
+        left.pack(side="left", padx=24, pady=16)
+        tk.Label(left, text="Recall", font=F_TITLE, bg=BG, fg=FG).pack(anchor="w")
+        tk.Label(
+            left,
+            text="A calm place to write and reflect",
+            font=F_SMALL,
+            bg=BG,
+            fg=FG_DIM,
+        ).pack(anchor="w", pady=(2, 0))
 
         right = tk.Frame(hdr, bg=BG)
-        right.pack(side="right", padx=20)
+        right.pack(side="right", padx=24)
         self._clock_lbl = tk.Label(right, text="", font=F_SMALL, bg=BG, fg=FG_DIM)
         self._clock_lbl.pack()
         self._tick()
 
     def _build_content_area(self) -> None:
         self.content = tk.Frame(self.root, bg=BG)
-        self.content.pack(fill="both", expand=True, padx=28, pady=14)
+        self.content.pack(fill="both", expand=True, padx=32, pady=18)
 
     def _build_status_bar(self) -> None:
         bar = tk.Frame(self.root, bg=BG)
         bar.pack(fill="x")
 
         self._status_lbl = tk.Label(
-            bar, text="▸ READY",
+            bar, text="Status: Ready",
             font=F_SMALL, bg=BG, fg=FG_DIM,
-            anchor="w", padx=20, pady=5,
+            anchor="w", padx=24, pady=8,
         )
         self._status_lbl.pack(side="left")
 
         self._mode_lbl = tk.Label(
             bar, text="HOME",
             font=F_SMALL, bg=BG, fg=FG_DIM,
-            anchor="e", padx=20,
+            anchor="e", padx=24,
         )
         self._mode_lbl.pack(side="right")
 
@@ -81,7 +85,7 @@ class AppChrome:
     # ──────────────────────────────────────────────
 
     def _tick(self) -> None:
-        self._clock_lbl.config(text=datetime.now().strftime("%Y·%m·%d   %H:%M:%S"))
+        self._clock_lbl.config(text=datetime.now().strftime("%b %d, %Y  %H:%M"))
         self.root.after(1000, self._tick)
 
     # ──────────────────────────────────────────────
@@ -96,7 +100,7 @@ class AppChrome:
     def _status(self, message: str, err: bool = False) -> None:
         """Update the bottom-left status label."""
         colour = FG_ERR if err else FG_DIM
-        self._status_lbl.config(text=f"▸ {message}", fg=colour)
+        self._status_lbl.config(text=f"Status: {message}", fg=colour)
 
     def _mode(self, label: str) -> None:
         """Update the bottom-right mode label."""

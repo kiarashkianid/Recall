@@ -1,0 +1,1 @@
+"""Recall journal application package."""

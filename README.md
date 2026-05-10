@@ -91,29 +91,47 @@ CREATE DATABASE journal_db;
 ### 3. Install dependencies
 
 ```bash
-pip install psycopg2-binary chromadb openai crewai reportlab
+python3 -m pip install -r requirements.txt
+```
+
+On Debian/Ubuntu, Tkinter is provided by the system package manager:
+
+```bash
+sudo apt-get install python3-pip python3-tk
 ```
 
 ### 4. Configure credentials
 
-Open `config.py` and update:
+Copy the template to a local `.env` file and fill in your credentials:
 
-```python
-OPENAI_API_KEY = "sk-..."
+```bash
+cp .env.example .env
+```
 
-DB_CONFIG = {
-    "user":     "your_pg_user",
-    "password": "your_pg_password",
-    ...
-}
+```dotenv
+OPENAI_API_KEY=sk-...
+POSTGRES_DB=journal_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_pg_password
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
 
-CHROMA_PATH = "./chroma_db"   # where ChromaDB persists on disk
+You can also set the same values in your shell:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export POSTGRES_DB="journal_db"
+export POSTGRES_USER="postgres"
+export POSTGRES_PASSWORD="your_pg_password"
+export POSTGRES_HOST="localhost"
+export POSTGRES_PORT="5432"
 ```
 
 ### 5. Run
 
 ```bash
-python main.py
+python3 main.py
 ```
 
 On first launch, any existing PostgreSQL entries are synced into ChromaDB
@@ -128,23 +146,29 @@ the moment you press Save.
 User presses [ GENERATE SUMMARY ]
         │
         ▼
-  Agent receives task: "Analyse the journal"
+  App loads the most recent journal entries from PostgreSQL
         │
-        ├─► Tool call: search_journal("key events highlights this week")
-        │         └─► ChromaDB cosine search → top-6 relevant chunks
+        ▼
+  Agent receives a grounded reflection task with those entries as evidence
         │
-        ├─► Tool call: search_journal("lessons learned insights growth")
-        │         └─► ChromaDB cosine search → top-6 relevant chunks
+        ├─► Optional: search_journal(...) for a targeted theme check
+        │         └─► ChromaDB cosine search → relevant older chunks
         │
-        ├─► Tool call: search_journal("recurring themes emotions patterns")
-        │         └─► ChromaDB cosine search → top-6 relevant chunks
-        │
-        └─► GPT-4o synthesises from retrieved context only
-                  └─► Structured report: Highlights / Learnings / Patterns
+        └─► GPT-4o synthesises from recent entries first
+                  └─► Reflection: Snapshot / Moments / Patterns /
+                       Attention / Next Step / Question
 ```
 
-The **Ask** feature follows the same pattern but for a single user question,
-with the agent free to re-query with rephrased terms if the first results
-are insufficient.
+If semantic search is unavailable, Generate can still create a reflection
+from the recent PostgreSQL entries. The **Ask** feature still requires
+ChromaDB because it answers open-ended questions through semantic search.
+
+```
+User asks a question
+        │
+        └─► Tool call: search_journal(...)
+        │         └─► ChromaDB cosine search → top-6 relevant chunks
+                  └─► GPT-4o answers from retrieved context only
+```
 
 ---

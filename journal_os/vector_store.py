@@ -15,7 +15,7 @@ Usage:
 
 import chromadb
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
-from config import (
+from .config import (
     OPENAI_API_KEY,
     OPENAI_EMBEDDING_MODEL,
     CHROMA_PATH,
@@ -36,6 +36,12 @@ def _get_collection():
     global _collection
     if _collection is not None:
         return _collection
+
+    if not OPENAI_API_KEY:
+        raise RuntimeError(
+            "OPENAI_API_KEY is not set. Set it before using semantic search, "
+            "summary generation, or automatic entry embedding."
+        )
 
     client = chromadb.PersistentClient(path=CHROMA_PATH)
 

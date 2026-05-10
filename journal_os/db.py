@@ -7,7 +7,7 @@ No UI or business logic lives here.
 
 import psycopg2
 from datetime import datetime, timedelta
-from config import DB_CONFIG
+from .config import DB_CONFIG
 
 
 # ──────────────────────────────────────────────
@@ -118,6 +118,31 @@ def fetch_all_entries_with_ids() -> list[tuple]:
             "SELECT id, title, content, journal_date "
             "FROM journal_entries "
             "ORDER BY id ASC"
+        )
+        rows = cur.fetchall()
+    conn.close()
+    return rows
+
+
+def fetch_recent_entries_with_ids(limit: int = 12) -> list[tuple]:
+    """
+    Return the most recent journal entries including the primary key.
+    Used to give the AI reflection concrete, chronological context.
+
+    Args:
+        limit: Maximum number of entries to return.
+
+    Returns:
+        List of (id, title, content, journal_date) tuples, newest-first.
+    """
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT id, title, content, journal_date "
+            "FROM journal_entries "
+            "ORDER BY journal_date DESC, id DESC "
+            "LIMIT %s",
+            (limit,),
         )
         rows = cur.fetchall()
     conn.close()
